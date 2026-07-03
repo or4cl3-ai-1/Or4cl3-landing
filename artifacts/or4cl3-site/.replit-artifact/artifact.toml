@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Or4cl3 AI Solutions"
+version = "1.0.0"
+id = "artifacts/or4cl3-site"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25980
+
+[services.development]
+run = "pnpm --filter @workspace/or4cl3-site run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/or4cl3-site", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/or4cl3-site/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25980"
+BASE_PATH = "/"
