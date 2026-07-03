@@ -289,6 +289,77 @@ The site produces a fully static build — no server-side rendering, no runtime 
 
 **Build output location:** `artifacts/or4cl3-site/dist/public/`
 
+---
+
+### GitHub Pages (automated)
+
+The repository includes a GitHub Actions workflow at `.github/workflows/deploy.yml` that builds and deploys the site automatically on every push to `main`.
+
+#### One-time setup
+
+1. **Push this repository to GitHub.**
+
+2. **Enable GitHub Pages** in your repository settings:
+   - Go to **Settings → Pages**
+   - Under *Source*, select **GitHub Actions**
+   - Save
+
+3. **Push to `main`** (or trigger the workflow manually via **Actions → Deploy to GitHub Pages → Run workflow**).
+
+The workflow will build the site and publish it. Your live URL will be shown in the Actions run output and in **Settings → Pages** once the first deploy succeeds.
+
+#### How it works
+
+```
+.github/workflows/deploy.yml
+```
+
+| Step | What it does |
+|------|-------------|
+| `actions/checkout@v4` | Checks out the repository |
+| `pnpm/action-setup@v4` | Installs pnpm (latest) |
+| `actions/setup-node@v4` | Sets up Node.js 24 with pnpm cache |
+| `pnpm install --frozen-lockfile` | Installs exact dependency versions from the lockfile |
+| `actions/configure-pages@v5` | Reads the repository's GitHub Pages base path (e.g. `/or4cl3-site/` for a project site, `/` for a user/org site) |
+| `pnpm --filter @workspace/or4cl3-site run build` | Vite production build — `BASE_PATH` is set automatically from the Pages config output |
+| `actions/upload-pages-artifact@v3` | Uploads `artifacts/or4cl3-site/dist/public/` as the Pages artifact |
+| `actions/deploy-pages@v4` | Deploys the artifact to GitHub Pages |
+
+The workflow uses the official GitHub Pages Actions with OIDC token-based deployment — no personal access tokens or secrets required.
+
+#### Automatic base path handling
+
+The `actions/configure-pages` step outputs the correct `base_path` for your repository type:
+
+| Repository type | Example URL | `BASE_PATH` set to |
+|----------------|-------------|-------------------|
+| User/org site (`username.github.io`) | `https://username.github.io/` | `/` |
+| Project site | `https://username.github.io/or4cl3-site/` | `/or4cl3-site/` |
+
+Vite's `base` option is set to this value at build time, so all asset URLs and anchor links resolve correctly regardless of the repository name.
+
+#### SPA routing on GitHub Pages
+
+GitHub Pages serves a `404.html` for any path it doesn't recognise (which would otherwise break a page refresh or a directly shared URL). Two files handle this:
+
+| File | Role |
+|------|------|
+| `artifacts/or4cl3-site/public/404.html` | Encodes the requested path as a query string and redirects to the root `index.html` |
+| `artifacts/or4cl3-site/index.html` (inline script) | Reads the encoded path from `sessionStorage` on load and restores it via `history.replaceState` |
+
+Since this site uses **anchor-based navigation only** (no deep client-side routes), the redirect is a safety net rather than a hard requirement — but it ensures that any bookmarked or shared URLs continue to work correctly.
+
+---
+
+### Other static hosts
+
+| Host | Notes |
+|------|-------|
+| **Netlify** | Drop `artifacts/or4cl3-site/dist/public/` into the Netlify UI, or set build command to `pnpm --filter @workspace/or4cl3-site run build` and publish directory to `artifacts/or4cl3-site/dist/public`. Set `PORT=3000` and `BASE_PATH=/` as environment variables. |
+| **Vercel** | Set framework to *Other*, build command to `pnpm --filter @workspace/or4cl3-site run build`, output directory to `artifacts/or4cl3-site/dist/public`, and add `PORT=3000`, `BASE_PATH=/` to environment variables. |
+| **Cloudflare Pages** | Same build command and output directory as above. |
+| **Nginx / Caddy** | Serve the `dist/public/` directory. Add a fallback rule to serve `index.html` for all paths (standard SPA config). |
+
 ### Path alias reference
 
 Vite resolves the following path aliases at build time:
