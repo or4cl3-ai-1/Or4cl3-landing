@@ -10,7 +10,7 @@ export default function Home() {
         <div className="wrap">
           <nav>
             <a className="brand" href="#top">
-              <img src="/or4cl3-logo.png" alt="Or4cl3 emblem" />
+              <img src={`${import.meta.env.BASE_URL}or4cl3-logo.png`} alt="Or4cl3 emblem" />
               <b>Or4cl3<span>·</span>AI</b>
             </a>
             <div className="nav-links">
@@ -32,7 +32,7 @@ export default function Home() {
         <section className="hero">
           <div className="wrap">
             <FadeIn>
-              <div className="hero-emblem"><img src="/or4cl3-logo.png" alt="Or4cl3 — two minds sharing one verified intelligence" /></div>
+              <div className="hero-emblem"><img src={`${import.meta.env.BASE_URL}or4cl3-logo.png`} alt="Or4cl3 — two minds sharing one verified intelligence" /></div>
             </FadeIn>
             <FadeIn delay={0.1}>
               <div className="eyebrow"><span className="dot"></span> SAFETY-CRITICAL AI · FORMALLY VERIFIED</div>
@@ -244,7 +244,7 @@ export default function Home() {
         <div className="wrap">
           <div className="foot">
             <a className="brand" href="#top">
-              <img src="/or4cl3-logo.png" alt="Or4cl3 emblem" />
+              <img src={`${import.meta.env.BASE_URL}or4cl3-logo.png`} alt="Or4cl3 emblem" />
               <b>Or4cl3<span style={{color: 'var(--cyan)'}}>·</span>AI Solutions</b>
             </a>
             <div className="foot-links">
